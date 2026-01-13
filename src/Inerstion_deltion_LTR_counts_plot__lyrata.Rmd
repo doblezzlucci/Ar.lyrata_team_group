@@ -1,0 +1,218 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+library(dplyr)
+library(stringr)
+library(ggplot2)
+library(readr)
+library(tidyr)
+
+# ---------------------------
+# 1) Read Galaxy RepeatMasker tabular
+# ---------------------------
+# Replace with your exact filename
+file="~/Desktop/geniomhe/comparative _genomics /TE/chr1/Galaxy72-[RepeatMasker output log on dataset 43 and 53].tabular"
+dir="~/Desktop/geniomhe/comparative _genomics /TE/chr1"
+rm <- read_tsv(
+  file,
+)
+
+
+```
+
+
+```{r}
+rm
+```
+
+```{r}
+# ---------------------------
+# 2) Standardize the column names (no guessing later)
+# ---------------------------
+# These match the header you showed:
+# SW score, % div., % del., % ins., query sequence, pos in  query: begin, end, (left),
+# repeat, class/family, pos in repeat: begin, end, (left), ID
+library(dplyr)
+
+rm <- rm %>%
+  rename(
+    sw_score     = 1,
+    kimura       = 2,
+    perc_del     = 3,
+    perc_ins     = 4,
+    chr          = 5,
+    q_begin      = 6,
+    q_end        = 7,
+    q_left       = 8,
+    repeat_name  = 9,
+    class_family = 10
+  )
+
+
+```
+
+
+```{r}
+# ---------------------------
+# 3) Clean numeric columns (Galaxy sometimes reads parentheses as text)
+# ---------------------------
+rm <- rm %>%
+  mutate(
+    q_left_num = as.numeric(str_remove_all(as.character(q_left), "[() ]")),
+    q_begin = as.numeric(q_begin),
+    q_end = as.numeric(q_end),
+    kimura = as.numeric(kimura),
+    midpoint = (q_begin + q_end) / 2
+  )
+
+# ---------------------------
+# 4) Compute chromosome length directly from end + left
+#     (because left is "bp remaining after end")
+# ---------------------------
+chr_sizes <- rm %>%
+  filter(!is.na(q_left_num), !is.na(q_end)) %>%
+  mutate(chr_len = q_end + q_left_num) %>%
+  group_by(chr) %>%
+  summarise(chr_len = max(chr_len, na.rm = TRUE), .groups = "drop")
+
+# ---------------------------
+# 5) Keep only LTR families Gypsy vs Copia (edit patterns if needed)
+# ---------------------------
+te <- rm %>%
+  mutate(
+    family = case_when(
+      str_detect(class_family, regex("Gypsy", ignore_case = TRUE)) ~ "Gypsy",
+      str_detect(class_family, regex("Copia", ignore_case = TRUE)) ~ "Copia",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(family)) %>%
+  left_join(chr_sizes, by = "chr")
+
+# ---------------------------
+# 6) Define pericentromere as central 20% (40–60% of chr)
+# ---------------------------
+te <- te %>%
+  mutate(
+    peri_start = 0.40 * chr_len,
+    peri_end   = 0.60 * chr_len,
+    region = if_else(midpoint >= peri_start & midpoint <= peri_end,
+                     "Pericentromere", "Arms")
+  )
+
+# ---------------------------
+# 7) Enrichment summary (counts + fractions)
+# ---------------------------
+enrichment <- te %>%
+  count(family, region) %>%
+  group_by(family) %>%
+  mutate(frac = n / sum(n)) %>%
+  ungroup()
+
+print(enrichment)
+
+# ---------------------------
+# 8) Plot: stacked fraction per family (paper-style)
+# ---------------------------
+p1 <- ggplot(enrichment, aes(x = family, y = frac, fill = region)) +
+  geom_col(position = "fill") +
+  theme_minimal() +
+  labs(
+    title = "Pericentromere vs chromosome arms enrichment",
+    x = "LTR family",
+    y = "Fraction of insertions",
+    fill = "Region"
+  )
+ggsave(file.path(dir,"TE_pericentromere_vs_arms_fraction.png"), p1, width = 7, height = 5)
+
+# ---------------------------
+# 9) Plot: counts per family/region (useful for QC)
+# ---------------------------
+p2 <- ggplot(enrichment, aes(x = family, y = n, fill = region)) +
+  geom_col(position = "dodge") +
+  theme_minimal() +
+  labs(
+    title = "Counts of insertions per region",
+    x = "LTR family",
+    y = "Insertion count",
+    fill = "Region"
+  )
+ggsave(file.path(dir,"TE_pericentromere_vs_arms_counts.png"), p2, width = 7, height = 5)
+
+# ---------------------------
+# 10) Statistics: enrichment test
+#     (a) overall 2x2 table Gypsy/Copia x region
+# ---------------------------
+tab <- table(te$family, te$region)
+print(tab)
+
+# Use Fisher if any small counts, otherwise Chi-square
+if (any(tab < 5)) {
+  test <- fisher.test(tab)
+  test_name <- "Fisher's Exact Test"
+} else {
+  test <- chisq.test(tab)
+  test_name <- "Chi-square Test"
+}
+
+cat("\n", test_name, "\n")
+print(test)
+
+# Extract the last folder name (e.g. "chr5")
+dir_name <- basename(dir)
+
+# Build the output filename
+summary_file <- file.path(
+  dir,
+  paste0("TE_pericentromere_vs_arms_summary_", dir_name, ".txt")
+)
+
+
+writeLines(
+  c(
+    paste("Test:", test_name),
+    paste("Statistic:", test$statistic),
+    paste("df:", ifelse(is.null(test$parameter), "NA", test$parameter)),
+    paste("p-value:", test$p.value)
+  ),
+  summary_file
+)
+
+# ---------------------------
+# 11) OPTIONAL: enrichment for young TEs only (e.g., Kimura <= 5)
+# ---------------------------
+young_cutoff <- 5
+
+young <- te %>%
+  filter(!is.na(kimura), kimura <= young_cutoff) %>%
+  count(family, region) %>%
+  group_by(family) %>%
+  mutate(frac = n / sum(n)) %>%
+  ungroup()
+
+p3 <- ggplot(young, aes(x = family, y = frac, fill = region)) +
+  geom_col(position = "fill") +
+  theme_minimal() +
+  labs(
+    title = paste0("Young TE enrichment (Kimura ≤ ", young_cutoff, "%)"),
+    x = "LTR family",
+    y = "Fraction of insertions",
+    fill = "Region"
+  )
+ggsave(file.path(dir,"Young_TE_pericentromere_vs_arms_fraction.png"), p3, width = 7, height = 5)
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+

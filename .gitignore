@@ -1,0 +1,13 @@
+*.bam
+*.sam
+*.fastq
+*.fq
+*.vcf
+*.bed
+*.log
+*.tmp
+*.Rhistory
+*.RData
+*.DS_Store
+__pycache__/
+

@@ -1,0 +1,32 @@
+"raw","category","bp","percent"
+"bases masked:    4737163 bp ( 22.80 %)","bases masked",4737163,22.8
+"Retroelements         1594      2332795 bp   11.23 %","Retroelements",2332795,11.23
+"   SINEs:                0            0 bp    0.00 %","SINEs",0,0
+"   Penelope:             0            0 bp    0.00 %","Penelope",0,0
+"   LINEs:              449       291475 bp    1.40 %","LINEs",291475,1.4
+"    CRE/SLACS            0            0 bp    0.00 %","CRE/SLACS",0,0
+"     L2/CR1/Rex          0            0 bp    0.00 %","L2/CR1/Rex",0,0
+"     R1/LOA/Jockey       0            0 bp    0.00 %","R1/LOA/Jockey",0,0
+"     R2/R4/NeSL          0            0 bp    0.00 %","R2/R4/NeSL",0,0
+"     RTE/Bov-B           0            0 bp    0.00 %","RTE/Bov-B",0,0
+"     L1/CIN4           449       291475 bp    1.40 %","L1/CIN4",291475,1.4
+"   LTR elements:      1145      2041320 bp    9.83 %","LTR elements",2041320,9.83
+"     BEL/Pao             0            0 bp    0.00 %","BEL/Pao",0,0
+"     Ty1/Copia         428       433041 bp    2.08 %","Ty1/Copia",433041,2.08
+"     Gypsy/DIRS1       717      1608279 bp    7.74 %","Gypsy/DIRS1",1608279,7.74
+"       Retroviral        0            0 bp    0.00 %","Retroviral",0,0
+"DNA transposons        182       102228 bp    0.49 %","DNA transposons",102228,0.49
+"   hobo-Activator        0            0 bp    0.00 %","hobo-Activator",0,0
+"   Tc1-IS630-Pogo        0            0 bp    0.00 %","Tc1-IS630-Pogo",0,0
+"   En-Spm                0            0 bp    0.00 %","En-Spm",0,0
+"   MULE-MuDR            66        40932 bp    0.20 %","MULE-MuDR",40932,0.2
+"   PiggyBac              0            0 bp    0.00 %","PiggyBac",0,0
+"   Tourist/Harbinger    71        31386 bp    0.15 %","Tourist/Harbinger",31386,0.15
+"   Other (Mirage,        0            0 bp    0.00 %","Other",0,0
+"Rolling-circles        346        81547 bp    0.39 %","Rolling-circles",81547,0.39
+"Unclassified:         6712      1851410 bp    8.91 %","Unclassified",1851410,8.91
+"Total interspersed repeats:     4286433 bp   20.63 %","Total interspersed repeats",4286433,20.63
+"Small RNA:              20         1624 bp    0.01 %","Small RNA",1624,0.01
+"Satellites:              0            0 bp    0.00 %","Satellites",0,0
+"Simple repeats:       7106       283825 bp    1.37 %","Simple repeats",283825,1.37
+"Low complexity:       1685        83734 bp    0.40 %","Low complexity",83734,0.4

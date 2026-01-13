@@ -1,0 +1,192 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+# ===============================
+# Visualizing RepeatMasker output
+# ===============================
+
+library(ggplot2)
+library(dplyr)
+library(stringr)
+
+# -------------------------------
+# 1. Read RepeatMasker summary
+# -------------------------------
+file="~/Desktop/geniomhe/comparative _genomics /TE/all genome lyrata /Galaxy126-[RepeatMasker repeat statistics on dataset 118 and 120].txt"
+dir="~/Desktop/geniomhe/comparative _genomics /TE/all genome lyrata "
+lines <- readLines(file)
+
+# Keep only lines with bp and %
+data_lines <- lines[str_detect(lines, "bp") & str_detect(lines, "%")]
+
+# Parse table
+rm_df <- data.frame(
+  raw = data_lines,
+  stringsAsFactors = FALSE
+)
+
+rm_df <- rm_df %>%
+  mutate(
+    category = str_trim(
+      str_extract(raw,"^[A-Za-z0-9/\\- ]+")
+    ),
+    bp = as.numeric(str_replace_all(
+      str_extract(raw, "[0-9,]+(?= bp)"), ",", ""
+    )),
+    percent = as.numeric(
+      str_extract(raw, "[0-9.]+(?= %)")
+    )
+  ) %>%
+  filter(!is.na(bp))
+
+```
+
+```{r}
+
+
+```
+
+
+```{r}
+
+rm_df$category <- sub("\\s{2,}.*", "", rm_df$category)
+unique(rm_df$category)
+```
+
+
+
+```{r}
+# -------------------------------
+# 2. High-level TE composition
+# -------------------------------
+main_classes <- c(
+  "Retroelements",
+  "DNA transposons",
+  "Rolling-circles",
+  "Unclassified",
+  "Small RNA",
+  "Simple repeats",
+  "Low complexity"
+)
+
+te_main <- rm_df %>%
+  filter(category %in% main_classes)
+
+# Barplot
+ggplot(te_main, aes(x=reorder(category, percent), y=percent, fill=category)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    title="RepeatMasker TE composition",
+    x="Repeat class",
+    y="Genome fraction (%)"
+  ) +
+  theme(legend.position="none")
+
+ggsave(file.path(dir,"TE_composition_barplot.png"), width=7, height=5)
+
+# Pie chart
+ggplot(te_main, aes(x="", y=percent, fill=category)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y") +
+  theme_void() +
+  labs(title="Genome repeat composition")
+
+ggsave(file.path(dir,"TE_composition_pie.png"), width=6, height=6)
+
+```
+
+
+```{r}
+# -------------------------------
+# 3. Detailed TE subclasses
+# -------------------------------
+subclasses <- c(
+  "SINEs",
+  "LTR elements",
+  "Ty1/Copia",
+  "Gypsy/DIRS1",
+  "LINEs",
+  "L1/CIN4",
+  "RTE/Bov-B",
+  "DNA transposons",
+  "hobo-Activator",
+  "MULE-MuDR")
+
+te_sub <- rm_df %>%
+  filter(category %in% subclasses & percent >= 0)
+
+ggplot(te_sub, aes(x=reorder(category, percent), y=percent, fill=category)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    title="TE subclass distribution",
+    x="TE subclass",
+    y="Genome fraction (%)"
+  ) +
+  theme(legend.position="none")
+
+ggsave(file.path(dir,"TE_subclass_distribution.png"), width=7, height=5)
+
+# -------------------------------
+# 4. Save table for reporting
+# -------------------------------
+write.csv(rm_df,file.path(dir,"RepeatMasker_parsed_summary.csv"), row.names=FALSE)
+```
+
+
+```{r}
+
+library(dplyr)
+library(ggplot2)
+
+# Read RepeatMasker .out
+rm <- read.table("~/Desktop/geniomhe/comparative _genomics /TE/chr2/Galaxy113-[RepeatMasker repeat statistics on dataset 52 and 69].txt", fill=TRUE, stringsAsFactors=FALSE)
+
+# Standard RepeatMasker columns
+colnames(rm)[5:11] <- c("perc_div","perc_del","perc_ins",
+                        "query","q_start","q_end","q_left")
+colnames(rm)[10:11] <- c("repeat","class_family")
+
+# Extract family and class
+rm <- rm %>%
+  separate(class_family, into=c("Class","Family"), sep="/", fill="right")
+
+rm$length <- abs(rm$q_end - rm$q_start)
+
+# Summarize by FAMILY
+fam_sum <- rm %>%
+  group_by(Family) %>%
+  summarise(bp = sum(length)) %>%
+  arrange(desc(bp)) %>%
+  slice_head(n=10)
+
+# Plot
+ggplot(fam_sum, aes(x=reorder(Family, bp), y=bp/1e6)) +
+  geom_bar(stat="identity", fill="steelblue") +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    title="Top TE families in Arabidopsis lyrata",
+    x="TE family",
+    y="Total length (Mb)"
+  )
+
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+

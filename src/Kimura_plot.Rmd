@@ -1,0 +1,107 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+library(dplyr)
+library(stringr)
+library(ggplot2)
+library(tidyr)
+
+# 1. Read the entire file
+
+file="~/Desktop/geniomhe/comparative _genomics /TE/all genome lyrata /Galaxy127-[RepeatMasker repeat catalogue on dataset 118 and 120].txt"
+dir="~/Desktop/geniomhe/comparative _genomics /TE/all genome lyrata "
+lines <- readLines(file)
+
+
+
+# 2. Find the indices (line numbers) of all Kimura score lines
+# This finds every line containing the specific string
+kimura_indices <- grep("Kimura \\(with divCpGMod\\) =", lines)
+
+# 3. Extract the data for each occurrence
+results <- lapply(kimura_indices, function(i) {
+  
+  # The Kimura score is on line 'i'
+  k_score <- sub(".*Kimura \\(with divCpGMod\\) = ([0-9.]+).*", "\\1", lines[i])
+  
+  # The TE classification is 5 lines below the Kimura line (i + 5)
+  te_line <- lines[i + 5]
+  te_name <- sub(".*#([^ ]+).*", "\\1", te_line)
+  
+  return(data.frame(Kimura = as.numeric(k_score), TE = te_name))
+})
+
+# 4. Combine into a single table
+final_df <- do.call(rbind, results)
+
+# View the result
+print(final_df)
+```
+################
+
+
+
+```{r}
+
+unique(final_df$TE)
+```
+
+
+################
+
+
+
+```{r}
+ltr_age <- final_df %>%
+  filter(TE %in% c("LTR/Gypsy", "LTR/Copia")) 
+
+
+```
+
+
+```{r}
+ltr_age
+```
+
+
+```{r}
+ggplot(ltr_age, aes(x = Kimura, fill = TE)) +
+  geom_histogram(
+    bins = 40,
+    alpha = 0.6,
+    position = "identity"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "LTR retrotransposon age distribution",
+    x = "Kimura divergence (%)",
+    y = "TE copy count",
+    fill = "TE"
+  )
+
+ggsave(file.path(dir,"Gypsy_vs_Copia_Kimura_histogram.png"), width=7, height=5)
+
+```
+
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+
+```
+```{r}
+
+```
+

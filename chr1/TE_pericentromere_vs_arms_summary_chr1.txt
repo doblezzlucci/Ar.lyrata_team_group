@@ -1,0 +1,4 @@
+Test: Chi-square Test
+Statistic: 0.655753877086212
+df: 1
+p-value: 0.418062998817638
