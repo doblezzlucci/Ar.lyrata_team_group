@@ -44,17 +44,6 @@ final_df <- do.call(rbind, results)
 # View the result
 print(final_df)
 ```
-################
-
-
-
-```{r}
-
-unique(final_df$TE)
-```
-
-
-################
 
 
 
