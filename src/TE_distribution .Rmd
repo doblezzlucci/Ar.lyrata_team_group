@@ -136,57 +136,5 @@ ggplot(te_sub, aes(x=reorder(category, percent), y=percent, fill=category)) +
   theme(legend.position="none")
 
 ggsave(file.path(dir,"TE_subclass_distribution.png"), width=7, height=5)
-
-# -------------------------------
-# 4. Save table for reporting
-# -------------------------------
-write.csv(rm_df,file.path(dir,"RepeatMasker_parsed_summary.csv"), row.names=FALSE)
 ```
-
-
-```{r}
-
-library(dplyr)
-library(ggplot2)
-
-# Read RepeatMasker .out
-rm <- read.table("~/Desktop/geniomhe/comparative _genomics /TE/chr2/Galaxy113-[RepeatMasker repeat statistics on dataset 52 and 69].txt", fill=TRUE, stringsAsFactors=FALSE)
-
-# Standard RepeatMasker columns
-colnames(rm)[5:11] <- c("perc_div","perc_del","perc_ins",
-                        "query","q_start","q_end","q_left")
-colnames(rm)[10:11] <- c("repeat","class_family")
-
-# Extract family and class
-rm <- rm %>%
-  separate(class_family, into=c("Class","Family"), sep="/", fill="right")
-
-rm$length <- abs(rm$q_end - rm$q_start)
-
-# Summarize by FAMILY
-fam_sum <- rm %>%
-  group_by(Family) %>%
-  summarise(bp = sum(length)) %>%
-  arrange(desc(bp)) %>%
-  slice_head(n=10)
-
-# Plot
-ggplot(fam_sum, aes(x=reorder(Family, bp), y=bp/1e6)) +
-  geom_bar(stat="identity", fill="steelblue") +
-  coord_flip() +
-  theme_minimal() +
-  labs(
-    title="Top TE families in Arabidopsis lyrata",
-    x="TE family",
-    y="Total length (Mb)"
-  )
-
-plot(cars)
-```
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
