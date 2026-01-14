@@ -3,7 +3,8 @@
 ## Transposable elements analysis 
 
 for  transposable elements the analysis  was run   for each of the 8 chromosome file  of Arabidopsis lyrata 
-and also  toplevel assembly on Arabidopsis Lyrata And Arabidopsis Thaliana 
+and also  toplevel assembly on Arabidopsis Lyrata And Arabidopsis Thaliana .
+All the scripts for downstream analysis would be performed on saved on files folder for each of the 8 chromosome of A.Lyrata as well as A.lyrata toplevelel genome assembly (All lyrata)  and A.thaliana toplevelel genome assembly folders  (All thaliana)
 
  ### TE distribution 
  
