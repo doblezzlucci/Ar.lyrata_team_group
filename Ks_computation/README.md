@@ -1,10 +1,12 @@
 **Ks Computation – Arabidopsis lyrata**
+
 Overview
 
 This directory contains the complete computational workflow used to estimate synonymous substitution rates (Ks) between paralogous gene pairs in Arabidopsis lyrata.
 The analysis aims to reconstruct the duplication history of the genome by identifying signatures of ancient gene and whole-genome duplication (WGD) events through genome-wide Ks distributions.
 
 **Pipeline Description**
+
 *STEP 1 — Proteome Cleaning and Isoform Verification*
 
 Prior to duplication analysis, the A. lyrata proteome was filtered to retain only chromosome-anchored proteins.
