@@ -4,7 +4,7 @@
 
 for  transposable elements the analysis  was run   for each of the 8 chromosome file  of Arabidopsis lyrata 
 and also  toplevel assembly on Arabidopsis Lyrata And Arabidopsis Thaliana .
-All the scripts for downstream analysis available on the "src" folder  would be performed on  the ouputs of  GalaxyMasker tool available from https://usegalaxy.eu palteform which was used to process all  8 chromosome of A.Lyrata as well as A.lyrata toplevelel genome assembly (All lyrata)  and A.thaliana toplevelel genome assembly folders  (All thaliana) available on "file" folder 
+All the scripts for downstream analysis available on the "src" folder  would be performed on  the 3 ouput files  of  GalaxyMasker tool available from https://usegalaxy.eu palteform which was used to process all  8 chromosome of A.Lyrata as well as A.lyrata toplevelel genome assembly (All lyrata)  and A.thaliana toplevelel genome assembly folders  (All thaliana) available on "file" folder 
 
  ### TE distribution 
  
