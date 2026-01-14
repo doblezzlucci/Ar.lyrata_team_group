@@ -1,21 +1,11 @@
-Ks Computation – Arabidopsis lyrata
+**Ks Computation – Arabidopsis lyrata**
 Overview
 
 This directory contains the complete computational workflow used to estimate synonymous substitution rates (Ks) between paralogous gene pairs in Arabidopsis lyrata.
 The analysis aims to reconstruct the duplication history of the genome by identifying signatures of ancient gene and whole-genome duplication (WGD) events through genome-wide Ks distributions.
 
-Directory Structure
-Ks_computation/
-├── Pairs Generation/
-├── Main Computation/
-├── Values extraction/
-├── Plotting/
-
-
-Each folder corresponds to a well-defined step of the pipeline described below.
-
-Pipeline Description
-STEP 1 — Proteome Cleaning and Isoform Verification
+**Pipeline Description**
+*STEP 1 — Proteome Cleaning and Isoform Verification*
 
 Prior to duplication analysis, the A. lyrata proteome was filtered to retain only chromosome-anchored proteins.
 Scaffold-derived sequences were excluded, and the dataset was verified to ensure that each gene was represented by a single isoform.
@@ -28,7 +18,7 @@ Chromosome-mapped proteins: 31,478
 
 Scaffold proteins excluded: 1,189
 
-STEP 2 — Homology Detection and Gene Family Clustering
+*STEP 2 — Homology Detection and Gene Family Clustering*
 
 An all-versus-all BLASTp search was performed on the cleaned proteome to identify homologous protein pairs.
 BLAST hits were filtered using the following thresholds:
@@ -45,7 +35,7 @@ Number of MCL gene families: 4,162
 
 Total genes assigned to families: 27,611
 
-STEP 3 — Paralogous Pair Generation (Pairs Generation/)
+*STEP 3 — Paralogous Pair Generation (Pairs Generation/)*
 
 For each MCL gene family, all possible pairwise combinations of genes were generated using a Python script based on the itertools.combinations method.
 
@@ -57,7 +47,7 @@ Results:
 
 Output file containing ~1.86 million gene ID entries
 
-STEP 4 — Ks Computation Pipeline (Main Computation/)
+*STEP 4 — Ks Computation Pipeline (Main Computation/)*
 
 Synonymous (Ks) and non-synonymous (Ka) substitution rates were computed for all paralogous gene pairs using an automated shell-based pipeline.
 
@@ -86,7 +76,7 @@ Output:
 
 final_results_FULL.txt: raw cumulative Ka/Ks results for the entire genome
 
-STEP 5 — Values Extraction (Values extraction/)
+*STEP 5 — Values Extraction (Values extraction/)*
 
 Raw PAML output files were parsed using a dedicated Python script to extract:
 
@@ -104,7 +94,7 @@ final_ks_results.csv
 
 A quality-control step was performed to inspect the distribution and basic statistics of the obtained Ks values.
 
-STEP 6 — Ks Distribution Analysis and Plotting (Plotting/)
+*STEP 6 — Ks Distribution Analysis and Plotting (Plotting/)*
 
 Genome-wide Ks distributions were generated using all validated paralogous gene pairs.
 
@@ -120,7 +110,7 @@ Final output:
 
 Arabidopsis_Lyrata_Whole_Genome_Ks_Final.png
 
-Biological Interpretation
+**Biological Interpretation**
 
 The resulting Ks distribution reveals two major peaks:
 
