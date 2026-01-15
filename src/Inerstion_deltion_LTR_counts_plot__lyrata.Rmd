@@ -126,7 +126,7 @@ p1 <- ggplot(enrichment, aes(x = family, y = frac, fill = region)) +
 ggsave(file.path(dir,"TE_pericentromere_vs_arms_fraction.png"), p1, width = 7, height = 5)
 
 # ---------------------------
-# 9) Plot: counts per family/region (useful for QC)
+# 9) Plot: counts per family/region 
 # ---------------------------
 p2 <- ggplot(enrichment, aes(x = family, y = n, fill = region)) +
   geom_col(position = "dodge") +
@@ -146,14 +146,11 @@ ggsave(file.path(dir,"TE_pericentromere_vs_arms_counts.png"), p2, width = 7, hei
 tab <- table(te$family, te$region)
 print(tab)
 
-# Use Fisher if any small counts, otherwise Chi-square
-if (any(tab < 5)) {
-  test <- fisher.test(tab)
-  test_name <- "Fisher's Exact Test"
-} else {
+# Use  Chi-square
+
   test <- chisq.test(tab)
   test_name <- "Chi-square Test"
-}
+
 
 cat("\n", test_name, "\n")
 print(test)
