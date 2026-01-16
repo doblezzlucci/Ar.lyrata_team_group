@@ -173,9 +173,9 @@ families_size2 <- mcl_m[apply(mcl_m, 1, function(x) sum(x != "")) == 2, ]
 write.table(families_size2, "~/Desktop/geniomhe/comparative _genomics /project 2/families_size2.tsv", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 families_size3 <- mcl_m[apply(mcl_m, 1, function(x) sum(x != "")) == 3, ]
 write.table(families_size3, "~/Desktop/geniomhe/comparative _genomics /project 2/families_size3.tsv", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
-families_size_4 <-mcl_m[apply(mcl_m,1, function(x) sum(x !="")) == 4,]
-#families_size_4
-write.table(families_size_4,"~/Desktop/geniomhe/comparative _genomics /project 2/families_size4.tsv", sep="\t", quote=FALSE, row.names=FALSE,col.names=FALSE)
+families_size_10 <-mcl_m[apply(mcl_m,1, function(x) sum(x !="")) == 4,]
+#families_size_10
+write.table(families_size_10,"~/Desktop/geniomhe/comparative _genomics /project 2/families_size10.tsv", sep="\t", quote=FALSE, row.names=FALSE,col.names=FALSE)
 
 ```
 
