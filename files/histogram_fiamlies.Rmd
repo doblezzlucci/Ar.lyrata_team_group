@@ -1,0 +1,187 @@
+---
+title: "clusters representations"
+output: html_document
+date: "2025-10-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# ---- Load libraries ----
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(readr)
+# ---- 1. Read the MCL clusters file ----
+# Replace with your file name, e.g. "mcl_clusters.tsv"
+# ⚠️ Replace these 3 paths with your Galaxy outputs
+
+mcl_l <- read.table("~/Desktop/geniomhe/comparative _genomics /project 2/clusters_mcl_I2.0_lenient.txt",header = FALSE, sep = "\t", fill = TRUE, stringsAsFactors = FALSE)
+
+mcl_m <- read.table("~/Desktop/geniomhe/comparative _genomics /project 2/clusters_mcl_I2.0_medium.txt",
+header = FALSE, sep = "\t", fill = TRUE, stringsAsFactors = FALSE)
+
+mcl_s <- read.table("~/Desktop/geniomhe/comparative _genomics /project 2/clusters_mcl_I2.0_strict.txt",
+header = FALSE, sep = "\t", fill = TRUE, stringsAsFactors = FALSE)
+```
+
+
+```{r setup, include=FALSE}
+get_cluster_sizes <- function(df) {
+data.frame(
+Cluster_ID = paste0("Cluster_", seq_len(nrow(df))),
+Size = apply(df, 1, function(x) sum(x != "" & !is.na(x)))
+)
+}
+
+family_sizes_l <- get_cluster_sizes(mcl_l)
+family_sizes_m <- get_cluster_sizes(mcl_m)
+family_sizes_s <- get_cluster_sizes(mcl_s)
+```
+
+
+```{r setup, include=FALSE}
+cat("### Lenient inflation (I low)\n")
+summary(family_sizes_l$Size)
+cat("Number of clusters:", nrow(family_sizes_l), "\n")
+cat("Mean family size:", mean(family_sizes_l$Size), "\n\n")
+
+cat("### Medium inflation (I mid)\n")
+summary(family_sizes_m$Size)
+cat("Number of clusters:", nrow(family_sizes_m), "\n")
+cat("Mean family size:", mean(family_sizes_m$Size), "\n\n")
+
+cat("### Strict inflation (I high)\n")
+summary(family_sizes_s$Size)
+cat("Number of clusters:", nrow(family_sizes_s), "\n")
+cat("Mean family size:", mean(family_sizes_s$Size), "\n")
+```
+
+
+```{r setup, include=FALSE}
+plot_hist <- function(df, title) {
+ggplot(df, aes(x = Size)) +
+geom_histogram(binwidth = 1, fill = "#4DA8DA", color = "black") +
+theme_minimal() +
+ggtitle(title) +
+xlab("Cluster Size (# genes)") +
+ylab("Count")
+}
+
+
+
+```
+
+
+```{r}
+plot_hist(family_sizes_l, "Cluster Size Distribution — MCL Lenient")
+plot_hist(family_sizes_m, "Cluster Size Distribution — MCL Medium")
+plot_hist(family_sizes_s, "Cluster Size Distribution — MCL Strict")
+```
+
+## R Markdown
+```{r}
+combined <- bind_rows(
+mutate(family_sizes_l, Type = "Lenient"),
+mutate(family_sizes_m, Type = "Medium"),
+mutate(family_sizes_s, Type = "Strict")
+)
+
+ggplot(combined, aes(x = Size, fill = Type)) +
+geom_histogram(alpha = 0.5, position = "identity", binwidth = 1) +
+theme_minimal() +
+  coord_cartesian(xlim = c(1, 30))
+ggtitle("Comparative Cluster Size Distribution Across MCL Inflation Parameters") +
+xlab("Cluster Size") +
+ylab("Frequency")
+
+```
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r}
+combined_summary <- combined %>%
+group_by(Type) %>%
+summarise(
+n_clusters = n(),
+mean_size = mean(Size),
+median_size = median(Size),
+max_size = max(Size),
+min_size = min(Size)
+)
+
+combined_summary
+
+```
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+
+ggplot(family_sizes_l, aes(x = Size)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "white") +
+  scale_x_continuous(breaks = seq(1, max(family_sizes_l$Size), by = 1)) +
+  labs(title = "Distribution of MCL Family Sizes lenient",
+       x = "Family Size (# of genes)",
+       y = "Number of Families") + coord_cartesian(xlim = c(1, 30))+
+  theme_minimal(base_size = 14)
+ggplot(family_sizes_m, aes(x = Size)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "white") +
+  scale_x_continuous(breaks = seq(1, max(family_sizes_m$Size), by = 1)) +
+  labs(title = "Distribution of MCL Family Sizes medium",
+       x = "Family Size (# of genes)",
+       y = "Number of Families") + coord_cartesian(xlim = c(1, 30))+
+  theme_minimal(base_size = 14)
+ggplot(family_sizes_s, aes(x = Size)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "white") +
+  scale_x_continuous(breaks = seq(1, max(family_sizes_s$Size), by = 1)) +
+  labs(title = "Distribution of MCL Family Sizes strict",
+       x = "Family Size (# of genes)",
+       y = "Number of Families") + coord_cartesian(xlim = c(1, 30))+
+  theme_minimal(base_size = 14)
+
+# ---- 5. Cumulative Distribution Function (CDF) ----
+ggplot(family_sizes_s, aes(x = Size)) +
+  stat_ecdf(geom = "step", color = "darkred", size = 1.2) +
+  labs(title = "CDF of MCL Family Sizes strict",
+       x = "Family Size",
+       y = "Cumulative Proportion") +
+  theme_minimal(base_size = 14)
+ggplot(family_sizes_m, aes(x = Size)) +
+  stat_ecdf(geom = "step", color = "darkred", size = 1.2) +
+  labs(title = "CDF of MCL Family Sizes medium",
+       x = "Family Size",
+       y = "Cumulative Proportion") +
+  theme_minimal(base_size = 14)
+ggplot(family_sizes_l, aes(x = Size)) +
+  stat_ecdf(geom = "step", color = "darkred", size = 1.2) +
+  labs(title = "CDF of MCL Family Sizes loose",
+       x = "Family Size",
+       y = "Cumulative Proportion") +
+  theme_minimal(base_size = 14)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+families_size1 <- mcl_m[apply(mcl_m, 1, function(x) sum(x != "")) == 1, ]
+write.table(families_size1, "~/Desktop/geniomhe/comparative _genomics /project 2/families_size1.tsv", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+families_size2 <- mcl_m[apply(mcl_m, 1, function(x) sum(x != "")) == 2, ]
+write.table(families_size2, "~/Desktop/geniomhe/comparative _genomics /project 2/families_size2.tsv", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+families_size3 <- mcl_m[apply(mcl_m, 1, function(x) sum(x != "")) == 3, ]
+write.table(families_size3, "~/Desktop/geniomhe/comparative _genomics /project 2/families_size3.tsv", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+families_size_4 <-mcl_m[apply(mcl_m,1, function(x) sum(x !="")) == 4,]
+#families_size_4
+write.table(families_size_4,"~/Desktop/geniomhe/comparative _genomics /project 2/families_size4.tsv", sep="\t", quote=FALSE, row.names=FALSE,col.names=FALSE)
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+#families_size_10
+families_size_10 <-mcl_m[apply(mcl_m,1, function(x) sum(x !="")) == 10,]
+write.table(families_size_10,"~/Desktop/geniomhe/comparative _genomics /project 2/families_size10.tsv", sep="\t", quote=FALSE, row.names=FALSE,col.names=FALSE)
+```
